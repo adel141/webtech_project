@@ -27,14 +27,23 @@ class AdminController{
         }
         $data['active_jobs'] = $jobResult->fetch_assoc();
         $data['recent_applications'] = $applicationResult->fetch_assoc();
-        $data['pending_employers'] = $pendingEmployers->fetch_assoc();
-        $data['pending_recruiters'] = $pendingRecruiters->fetch_assoc();
 
-        //echo json_encode($data);
+        // echo json_encode($data);
 
         require_once '../../views/admin/dashboard.php';
         
-
     }
 
+    public function approverUser($user_id) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $result = $this->userModel->approveUser($user_id);
+            if($result){
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error']);
+            }
+            
+        }
+
+    }
 }

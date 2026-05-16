@@ -14,10 +14,13 @@ class User{
     }
 
     public function getPendingEmployers($role) {
-        $sql = "SELECT * FROM users WHERE role = ? AND is_verified = 0 AND is_active = 1 ORDER BY created_at DESC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $role);
-        $stmt->execute();
-        return $stmt->get_result();
+        $sql = "SELECT * FROM users WHERE role = '$role' AND is_verified = 0 AND is_active = 1 ORDER BY created_at DESC";
+        return $this->conn->query($sql);
+    }
+
+    public function approveUser($user_id) {
+        $sql = "UPDATE users SET is_verified = 1 WHERE id = '$user_id'";
+        return $this->conn->query($sql);
     }
 }
+?>

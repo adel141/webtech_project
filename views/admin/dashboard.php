@@ -37,6 +37,73 @@
     </div>
 </div>
 
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px">
+    <!-- Pending employers -->
+    <div class="card flush">
+        <div class="card-h">
+            <h3>Pending employers</h3>
+            <a href="" class="btn ghost sm" style="margin-left:auto">Manage all</a>
+        </div>
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($pendingEmployers)): ?>
+                <tr>
+                    <td colspan="3" style="text-align:center;padding:24px;color:var(--muted)">All clear.</td>
+                </tr>
+                <?php else: ?>
+                <?php foreach ($pendingEmployers as $u): ?>
+                <tr>
+                    <td><?= htmlspecialchars($u['name']) ?></td>
+                    <td class="muted" style="font-size:12px"><?= htmlspecialchars($u['email']) ?></td>
+                    <td>
+                        <form method="POST" style="display:inline">
+                            <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                            <button class="btn sm accent" onclick = "approveUser(<?= $u['id'] ?>)">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+<!-- Pending recruiters -->
+
+<div class="card flush">
+    <div class="card-h">
+      <h3>Pending recruiters</h3>
+      <a href="" class="btn ghost sm" style="margin-left:auto">Manage all</a>
+    </div>
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
+      <tbody>
+        <?php if (empty($pendingRecruiters)): ?>
+          <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--muted)">All clear.</td></tr>
+        <?php else: ?>
+          <?php foreach ($pendingRecruiters as $u): ?>
+            <tr>
+              <td><?= htmlspecialchars($u['name']) ?></td>
+              <td class="muted" style="font-size:12px"><?= htmlspecialchars($u['email']) ?></td>
+              <td>
+                <form method="POST" style="display:inline">
+                  <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                  <button class="btn sm accent" onclick="approveUser(<?= $u['id'] ?>)">Approve</button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div> 
 
 
 
@@ -45,25 +112,50 @@
 
 </body>
 <script>
+
+    function approveUser(userId) {
+        event.preventDefault();
+        if(!confirm("Are you sure?")) return;
+
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                let response = JSON.parse(this.responseText);
+                if(response.status === 'success') {
+                    alert('Employer approved successfully.');
+                } else {
+                    alert('Failed to approve employer.');
+                }
+                location.reload();
+                
+            }
+        }
+        xhr.open("POST", "../../ajax/admin/approvePendingUser.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.send("user_id=" + userId);
+
+
+        
+    }
     
 
     renderStats();
-        // function renderStats(){
-        //     let xtthp = new XMLHttpRequest();
-        //     xtthp.onload = function(){
-        //         if(this.readyState == 4 && this.status == 200){
-        //             let data = JSON.parse(this.responseText);
-        //             document.getElementById('seeker-count').innerText = data[0]?.cnt || 0;
-        //             document.getElementById('employer-count').innerText = data[1]?.cnt || 0;
-        //             document.getElementById('recruiter-count').innerText = data[2]?.cnt || 0;
-        //             document.getElementById('job-count').innerText = data['active_jobs']?.cnt || 0;
-        //             document.getElementById('app-count').innerText = data['recent_applications']?.cnt || 0;
-        //             document.getElementById('complaint-count').innerText = data['open_complaints']?.cnt || 0;
-        //         }
-        //     }
-        //     xtthp.open('GET', '../../ajax/admin/statusDashboard.php', true);
-        //     xtthp.send();
-        // }
+        function renderStats(){
+            let xtthp = new XMLHttpRequest();
+            xtthp.onload = function(){
+                if(this.readyState == 4 && this.status == 200){
+                    let data = JSON.parse(this.responseText);
+                    document.getElementById('seeker-count').innerText = data[0]?.cnt || 0;
+                    document.getElementById('employer-count').innerText = data[1]?.cnt || 0;
+                    document.getElementById('recruiter-count').innerText = data[2]?.cnt || 0;
+                    document.getElementById('job-count').innerText = data['active_jobs']?.cnt || 0;
+                    document.getElementById('app-count').innerText = data['recent_applications']?.cnt || 0;
+                    document.getElementById('complaint-count').innerText = data['open_complaints']?.cnt || 0;
+                }
+            }
+            xtthp.open('GET', '../../ajax/admin/statusDashboard.php', true);
+            xtthp.send();
+        }
 
 
 </script>
