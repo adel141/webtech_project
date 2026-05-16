@@ -2,7 +2,7 @@
  * app.js — Global JS helpers, AJAX utilities, Toast notifications
  */
 const APP = {
-    baseUrl: '/JobPortal/public',
+    baseUrl: '/JobPortal/JobPortal_Seeker/public',
 
     ajax(method, url, data = null) {
         return new Promise((resolve, reject) => {
