@@ -1,7 +1,6 @@
 <?php if (Auth::check()): ?>
-        </div><!-- .page-content -->
-    </div><!-- .main-content -->
-</div><!-- .app-wrapper -->
+        </div><!-- .jp-content -->
+    </div><!-- .jp-main -->
 <?php endif; ?>
 <script src="<?= BASE_URL ?>/js/app.js"></script>
 <?php if (isset($scripts)): ?>
