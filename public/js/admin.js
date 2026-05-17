@@ -44,14 +44,14 @@
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.send("user_id=" + userId + "&status=" + status);
     }
-    
+
 
     function loadUserByRole($role){
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 const users = JSON.parse(this.responseText);
-                const tbody = document.getElementById('employer-table-body');
+                const tbody = document.getElementById('user-table-body');
                 tbody.innerHTML = '';
                 if(users.length < 1){
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No Employers registered.</td></tr>';
