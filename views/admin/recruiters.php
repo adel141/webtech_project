@@ -29,6 +29,7 @@
 
 </body>
 <script >
+    loadUserByRole('recruiter');
 
 
 </script>
