@@ -1,77 +1,64 @@
-# JobPortal — Job Seeker Module
+# JobPortal — Employer Module
 
-A PHP MVC job portal platform — **Job Seeker** role implementation.
+A PHP MVC job portal platform — **Employer** role implementation.
 
 ## Features
 
 ### Authentication
-- Register with name, email, phone, and password; select "Job Seeker" role
-- Login/logout with session-based authentication
-- CSRF protection on all forms
+- Register a company account and submit details for admin verification.
+- Login/logout with session-based authentication.
+- CSRF protection on all forms.
 
-### Profile Management
-- Build a detailed seeker profile: headline, professional summary, skills (tag-style input), years of experience, education level, current and expected salary range, preferred location
-- Upload and replace resume (PDF, max 5 MB); view and download own resume
-- Upload a profile picture (JPEG/PNG/GIF/WebP, max 2 MB)
-- Manage all profile sections from a unified edit page
+### Company Profile
+- Manage company profile details: company name, industry, size, description, website, and address.
+- Upload and update company logo.
+- Restricted features before admin verification is completed.
 
-### Job Browsing & Search
-- Browse all active job postings
-- Search by keyword (matches title, description, and company name)
-- Filter job results by category, location, job type (full-time/part-time/remote/contract), experience level, and salary range
-- Filters update results via AJAX without page reload
+### Job Management
+- Create new job postings: title, category, description, requirements, benefits, salary range, location, job type, experience level, and deadline.
+- Edit, close, or delete existing job postings.
+- Repost closed jobs or toggle between active and closed statuses via AJAX.
+- View all job postings in a dashboard including metrics like applications and days until deadline.
 
-### Job Detail & Application
-- View job detail page: full description, requirements, benefits, salary range, company info, posted by (employer or recruiter agency), and application deadline
-- Apply to a job: write a cover letter and attach resume (from profile or new upload)
-- Duplicate application prevention enforced (UNIQUE KEY constraint)
-- Withdraw a pending application before the employer has reviewed it
+### Applicant Tracking
+- View all applications for a specific job, with filtering by status.
+- View individual applicant profiles, including cover letter and downloadable resume.
+- Update application status (reviewed/shortlisted/interview/rejected) via AJAX dropdown.
+- View shortlisted candidates across all job postings in a unified list.
 
-### Application Tracking
-- View all submitted applications with current status (submitted/reviewed/shortlisted/interview/rejected/withdrawn)
-- Color-coded status badges on a dedicated tracking page
-
-### Saved Jobs & Alerts
-- Save and unsave jobs to a personal bookmarks list; browse bookmarks
-- Set up job alerts: keyword, category, location, and job type preferences
-- View all active alerts; delete alerts
-- Receive in-platform notifications when a new job matches an alert preference
-
-### Communication
-- Read and reply to messages from employers and recruiters
-- View and respond to recruiter outreach messages about specific opportunities
-
-### Complaints
-- Submit a complaint to the admin about a misleading job posting or employer conduct
-- View complaint history with status (open/resolved) and admin notes
+### Communication & Analytics
+- Send in-platform messages to applicants (e.g., interview invitations, rejection notices).
+- View hiring analytics per job (application funnel, conversion rates).
+- View overall company recruitment analytics (total jobs, total apps).
+- Manage relationship with recruiter agencies and submit complaints to admin.
 
 ## Tech Stack
 
 - **Backend:** PHP 8+ (custom MVC framework)
 - **Database:** MySQL / MariaDB with mysqli
-- **Frontend:** HTML5, CSS3, JavaScript (vanilla)
+- **Frontend:** HTML5, CSS3 (JobPortal 1 Design System), JavaScript (vanilla)
 - **Icons:** Font Awesome 6
-- **Fonts:** Google Fonts (Inter + Outfit)
+- **Fonts:** Google Fonts (Geist + Geist Mono)
 
 ## Setup
 
 1. Import `database/schema.sql` into MySQL
 2. Update `config/database.php` with your credentials
 3. Place in your XAMPP `htdocs` folder
-4. Access via `http://localhost/JobPortal_Seeker/public`
+4. Access via `http://localhost/JobPortal_Employer/public`
 
 ## Project Structure
 
 ```
 ├── config/          → App config, DB config, route definitions
 ├── core/            → MVC base classes (Router, Controller, Model, Auth, Middleware)
-├── controllers/     → AuthController, SeekerController, MessageController, ApiController
-├── models/          → UserModel, SeekerModel, JobModel, ApplicationModel, etc.
+├── controllers/     → AuthController, EmployerController, MessageController, ApiController
+├── models/          → UserModel, EmployerModel, JobModel, ApplicationModel, AnalyticsModel, etc.
 ├── views/
 │   ├── auth/        → Login, Register pages
 │   ├── layouts/     → Shared header/footer templates
 │   ├── errors/      → 403, 404 error pages
-│   └── seeker/      → All 11 seeker view templates
+│   └── employer/    → All employer view templates
 ├── public/          → Front controller, CSS, JS, uploads
 └── database/        → SQL schema
 ```
