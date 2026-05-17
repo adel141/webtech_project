@@ -13,8 +13,16 @@ class User{
     return $this->conn->query($sql);
     }
 
-    
 
+    public function deactivateUser($user_id) {
+        $sql = "UPDATE users SET is_active = 0 WHERE id = '$user_id'";
+        return $this->conn->query($sql);
+    }
+
+    public function activateUser($user_id) {
+        $sql = "UPDATE users SET is_active = 1 WHERE id = '$user_id'";
+        return $this->conn->query($sql);
+    }
 
     public function getUserByRole($role) {
         $sql = "SELECT * FROM users WHERE role = '$role'";

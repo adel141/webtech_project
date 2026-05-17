@@ -11,21 +11,41 @@
                     alert('Employer approved successfully.');
                 } else {
                     alert('Failed to approve employer.');
-                }12
+                }
                 location.reload();
                 
             }
         }
-        xhr.open("POST", "../../ajax/admin/approvePendingUser.php", true);
+        xhr.open("GET", "../../ajax/admin/approvePendingUser.php?user_id=" + userId, true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhr.send("user_id=" + userId);
+        xhr.send();
 
 
         
     }
+
+        
+    function toggleUserStatus(userId, status) {
+        event.preventDefault();
+        if(!confirm("Are you sure?")) return;
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                let response = JSON.parse(this.responseText);
+                if(response.status === 'success') {
+                    alert('User status updated successfully.');
+                } else {
+                    alert('Failed to update user status.');
+                }
+                location.reload();
+            }
+        }
+        xhr.open("POST", "../../ajax/admin/toggleUserStatus.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.send("user_id=" + userId + "&status=" + status);
+    }
     
 
-    
     function loadUserByRole($role){
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
@@ -44,11 +64,11 @@
                         <td class="muted" style="font-size:12px">${user.email}</td>
                         <td class="muted" style="font-size:12px">${user.phone}</td>
                         <td class="num muted">${new Date(user.created_at).toLocaleDateString()}</td>
-                        <td>
+                        <td id="UserStatus">
                             ${user.is_active == 1 ?( (user.is_verified == 1? `<span class="pill ok">Active</span>` : `<span class="pill warn">Pending</span>`)) : `<span class="pill bad">Inactive</span>` }
                         </td>
                         <td>
-                            <form method="POST" style="display:inline">
+                            <form method="GET" style="display:inline">
                                 <input type="hidden" name="user_id" value="${user.id}">
                                 ${user.is_verified == 0 ? `<button class="btn sm accent " onclick = "approveUser(${user.id})">Approve</button>` : (user.is_active == 1 ? `<button class="btn sm " onclick = "toggleUserStatus(${user.id}, 0)">Deactivate</button>` : `<button class="btn sm accent" onclick = "toggleUserStatus(${user.id}, 1)">Activate</button>`)}
                             </form>
@@ -58,8 +78,9 @@
                 tbody.innerHTML = data;
             }
         };
-        xhttp.open("GET", "../../ajax/admin/fetchUserByRole.php?role=" + $role, true);
-        xhttp.send("");
+        xhttp.open("POST", "../../ajax/admin/fetchUserByRole.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("role=" + $role);
     }
 
     // renderStats();

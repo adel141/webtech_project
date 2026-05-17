@@ -34,8 +34,9 @@ class AdminController{
         
     }
 
+
     public function approverUser($user_id) {
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        if($_SERVER['REQUEST_METHOD'] === 'GET'){
             $result = $this->userModel->approveUser($user_id);
             if($result){
                 echo json_encode(['status' => 'success']);
@@ -54,5 +55,21 @@ class AdminController{
             $user[] = $row;
         }
         echo json_encode($user);
+    }
+
+    public function toggleUserStatus($user_id, $status) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if($status == 1){
+                $result = $this->userModel->activateUser($user_id);
+            } else {
+                $result = $this->userModel->deactivateUser($user_id);
+            }
+            
+            if($result){
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error']);
+            }
+        }
     }
 }
