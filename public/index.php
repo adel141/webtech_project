@@ -1,7 +1,7 @@
 <?php
 /**
  * Front Controller — Entry point for all requests
- * Job Seeker Module
+ * Employer Module
  */
 
 // Load configuration
@@ -17,18 +17,19 @@ require_once BASE_PATH . '/core/Middleware.php';
 
 // Load models
 require_once BASE_PATH . '/models/UserModel.php';
+require_once BASE_PATH . '/models/EmployerModel.php';
 require_once BASE_PATH . '/models/SeekerModel.php';
 require_once BASE_PATH . '/models/JobModel.php';
 require_once BASE_PATH . '/models/ApplicationModel.php';
 require_once BASE_PATH . '/models/CategoryModel.php';
 require_once BASE_PATH . '/models/MessageModel.php';
 require_once BASE_PATH . '/models/ComplaintModel.php';
-require_once BASE_PATH . '/models/AlertModel.php';
 require_once BASE_PATH . '/models/RecruiterModel.php';
+require_once BASE_PATH . '/models/AnalyticsModel.php';
 
 // Load controllers
 require_once BASE_PATH . '/controllers/AuthController.php';
-require_once BASE_PATH . '/controllers/SeekerController.php';
+require_once BASE_PATH . '/controllers/EmployerController.php';
 require_once BASE_PATH . '/controllers/MessageController.php';
 require_once BASE_PATH . '/controllers/ApiController.php';
 

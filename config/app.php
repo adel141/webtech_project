@@ -5,7 +5,7 @@
 
 // Base paths
 define('BASE_PATH', dirname(__DIR__));
-define('BASE_URL', '/JobPortal/JobPortal_Seeker/public');
+define('BASE_URL', '/JobPortal/JobPortal_Employer/public');
 
 // Upload settings
 define('UPLOAD_PATH', BASE_PATH . '/public/uploads');

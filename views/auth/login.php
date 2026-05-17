@@ -39,7 +39,7 @@
         <div>
             <h1 style="font-size: 36px; margin-bottom: 16px;">Welcome Back.</h1>
             <p style="color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 400px;">
-                Find your dream job and connect with top employers today.
+                Manage your job postings, find top talent, and grow your team.
             </p>
         </div>
         <div style="font-family: var(--mono); color: var(--muted); font-size: 12px;">
