@@ -19,10 +19,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="employer-table-body">
-            <tr>
-                <td></td>
-            </tr>
+        <tbody id="user-table-body">
         </tbody>
     </table>
 </div>

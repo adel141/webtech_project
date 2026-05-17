@@ -42,7 +42,7 @@
     <div class="card flush">
         <div class="card-h">
             <h3>Pending employers</h3>
-            <a href="" class="btn ghost sm" style="margin-left:auto">Manage all</a>
+            <a href="../admin/employers.php" class="btn ghost sm" style="margin-left:auto">Manage all</a>
         </div>
         <table class="tbl">
             <thead>
@@ -80,7 +80,7 @@
 <div class="card flush">
     <div class="card-h">
       <h3>Pending recruiters</h3>
-      <a href="" class="btn ghost sm" style="margin-left:auto">Manage all</a>
+      <a href="../admin/recruiters.php" class="btn ghost sm" style="margin-left:auto">Manage all</a>
     </div>
     <table class="tbl">
       <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
