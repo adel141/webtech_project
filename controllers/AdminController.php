@@ -46,4 +46,13 @@ class AdminController{
         }
 
     }
+
+    public function getUserByRole($role) {
+        $result = $this->userModel->getUserByRole($role);
+        $user = [];
+        while($row = $result->fetch_assoc()){
+            $user[] = $row;
+        }
+        echo json_encode($user);
+    }
 }
