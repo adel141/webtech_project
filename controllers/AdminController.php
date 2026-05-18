@@ -76,6 +76,10 @@ class AdminController{
         }
          
     }
+
+
+        
+
     function getAllCategories() {
             $result = $this->categoryModel->getAllCategories();
             $jobcountresult = $this->categoryModel->jobCountByCategory();   
@@ -85,17 +89,18 @@ class AdminController{
             $categories = [];
             while($row = $result->fetch_assoc()){
                 $categories[] = $row;
+
             }
             while($row = $jobcountresult->fetch_assoc()){
                 $category_name[] = $row;
             }
+
             $totalCategory = $categoriescount->fetch_assoc()['cnt'];
+
 
             $sumCategories['categories'] = $categories; 
             $sumCategories['name'] = $category_name;
             $sumCategories['total'] = $totalCategory;
-
-            
 
             echo json_encode($sumCategories);
         }

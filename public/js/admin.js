@@ -103,9 +103,10 @@
             
                 data['name'].forEach( function(category){
                 output += `<tr>
-                <td style="font-weight:500">${category.name}</td>
-                <td>${category.category_name}</td>
+                <td style="font-weight:500">${category.category_name}</td>
+                <td>${category.active_job}</td>
                 <td>${category.job_count}</td>
+                <td> </td>
                 </tr>
                     `
                 });

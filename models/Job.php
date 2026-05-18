@@ -11,11 +11,7 @@ class Job{
         return $result;
     }
 
-    function countActiveJobsByCategory() {
-        $sql = "SELECT category_id, COUNT(*) AS cnt FROM jobs WHERE status = 'active' GROUP BY category_id";
-        $result = $this->conn->query($sql);
-        return $result;
-    }
+
 
 
 
