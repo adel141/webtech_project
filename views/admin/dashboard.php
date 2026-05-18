@@ -1,117 +1,158 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user_id'])){
+    header("Location: ../../login.php");
+    exit;
+}
+
+if($_SESSION['role'] != 'admin'){
+    header("Location: ../../login.php");
+    exit;
+}
+
+require_once '../../controllers/AdminController.php';
+
+$controller = new AdminController();
+$data = $controller->dashboard();
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <h2>Job Portal</h2>
+            <a class="nav-link active" href="dashboard.php">Dashboard</a>
+            <a class="nav-link" href="users.php">Users</a>
+            <a class="nav-link" href="employers.php">Employers</a>
+            <a class="nav-link" href="recruiters.php">Recruiters</a>
+            <a class="nav-link" href="seekers.php">Seekers</a>
+            <a class="nav-link" href="categories.php">Categories</a>
+            <a class="nav-link" href="jobs.php">Jobs</a>
+            <a class="nav-link" href="complaints.php">Complaints</a>
+            <a class="nav-link" href="analytics.php">Analytics</a>
+            <a class="nav-link" href="../../ajax/auth/logout.php">Logout</a>
+        </aside>
 
-<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px">
-    <div class="stat">
-        <div class="k">Seekers</div>
-        <div class="v" id="seeker-count"><?= $data[0]['cnt'] ?? 0 ?></div>
+        <main class="main">
+            <div class="topbar">
+                <div>
+                    <h1>Admin Dashboard</h1>
+                    <p class="muted">Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></p>
+                </div>
+            </div>
+
+            <section class="grid">
+                <div class="card">
+                    <p class="card-title">Seekers</p>
+                    <p class="card-value"><?php echo htmlspecialchars($data['seeker']); ?></p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Employers</p>
+                    <p class="card-value"><?php echo htmlspecialchars($data['employer']); ?></p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Recruiters</p>
+                    <p class="card-value"><?php echo htmlspecialchars($data['recruiter']); ?></p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Active Jobs</p>
+                    <p class="card-value"><?php echo htmlspecialchars($data['active_jobs']); ?></p>
+                </div>
+            </section>
+
+            <section class="grid grid-three">
+                <div class="card">
+                    <p class="card-title">Recent Applications</p>
+                    <p class="card-value"><?php echo htmlspecialchars($data['recent_applications']); ?></p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Pending Employers</p>
+                    <p class="card-value"><?php echo count($data['pending_employers']); ?></p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Pending Recruiters</p>
+                    <p class="card-value"><?php echo count($data['pending_recruiters']); ?></p>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2>Pending Employers</h2>
+                    <a class="btn btn-light" href="employers.php">View All</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(count($data['pending_employers']) == 0){ ?>
+                                <tr><td colspan="4">No pending employers.</td></tr>
+                            <?php } ?>
+                            <?php foreach($data['pending_employers'] as $user){ ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['created_at']); ?></td>
+                                    <td class="actions">
+                                        <button class="btn btn-success" onclick="approveUser(<?php echo $user['id']; ?>)">Approve</button>
+                                        <button class="btn btn-danger" onclick="rejectUser(<?php echo $user['id']; ?>)">Reject</button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2>Pending Recruiters</h2>
+                    <a class="btn btn-light" href="recruiters.php">View All</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(count($data['pending_recruiters']) == 0){ ?>
+                                <tr><td colspan="4">No pending recruiters.</td></tr>
+                            <?php } ?>
+                            <?php foreach($data['pending_recruiters'] as $user){ ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['created_at']); ?></td>
+                                    <td class="actions">
+                                        <button class="btn btn-success" onclick="approveUser(<?php echo $user['id']; ?>)">Approve</button>
+                                        <button class="btn btn-danger" onclick="rejectUser(<?php echo $user['id']; ?>)">Reject</button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
     </div>
-    <div class="stat">
-        <div class="k">Employers</div>
-        <div class="v" id="employer-count"><?= $data[1]['cnt'] ?? 0 ?></div>
-    </div>
-    <div class="stat">
-        <div class="k">Recruiters</div>
-        <div class="v" id="recruiter-count"><?= $data[2]['cnt'] ?? 0 ?></div>
-    </div>
-    <div class="stat">
-        <div class="k">Active jobs</div>
-        <div class="v" id="job-count"><?= $data['active_jobs']['cnt'] ?? 0 ?></div>
-    </div>
-    <div class="stat">
-        <div class="k">Apps (30d)</div>
-        <div class="v" id="app-count"><?= $data['recent_applications']['cnt'] ?? 0 ?></div>
-        <div class="d up">recent</div>
-    </div>
-    <div class="stat">
-        <div class="k">Open complaints</div>
-        <div class="v" id="complaint-count"><?= $data['open_complaints']['cnt'] ?? 0 ?></div>
-    </div>
-</div>
-
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px">
-    <!-- Pending employers -->
-    <div class="card flush">
-        <div class="card-h">
-            <h3>Pending employers</h3>
-            <a href="../admin/employers.php" class="btn ghost sm" style="margin-left:auto">Manage all</a>
-        </div>
-        <table class="tbl">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($pendingEmployers)): ?>
-                <tr>
-                    <td colspan="3" style="text-align:center;padding:24px;color:var(--muted)">All clear.</td>
-                </tr>
-                <?php else: ?>
-                <?php foreach ($pendingEmployers as $u): ?>
-                <tr>
-                    <td><?= htmlspecialchars($u['name']) ?></td>
-                    <td class="muted" style="font-size:12px"><?= htmlspecialchars($u['email']) ?></td>
-                    <td>
-                        <form method="POST" style="display:inline">
-                            <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                            <button class="btn sm accent" onclick = "approveUser(<?= $u['id'] ?>)">Approve</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-
-<!-- Pending recruiters -->
-
-<div class="card flush">
-    <div class="card-h">
-      <h3>Pending recruiters</h3>
-      <a href="../admin/recruiters.php" class="btn ghost sm" style="margin-left:auto">Manage all</a>
-    </div>
-    <table class="tbl">
-      <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
-      <tbody>
-        <?php if (empty($pendingRecruiters)): ?>
-          <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--muted)">All clear.</td></tr>
-        <?php else: ?>
-          <?php foreach ($pendingRecruiters as $u): ?>
-            <tr>
-              <td><?= htmlspecialchars($u['name']) ?></td>
-              <td class="muted" style="font-size:12px"><?= htmlspecialchars($u['email']) ?></td>
-              <td>
-                <form method="POST" style="display:inline">
-                  <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                  <button class="btn sm accent" onclick="approveUser(<?= $u['id'] ?>)">Approve</button>
-                </form>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div> 
-
-
-
-
-
-
+    <script src="../../assets/js/admin.js"></script>
 </body>
-<script src ="../../public/js/admin.js">
-
-</script>
 </html>

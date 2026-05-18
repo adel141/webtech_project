@@ -1,51 +1,128 @@
-<?php $pageTitle = $pageTitle ?? 'Login'; ?>
+<?php
+session_start();
+
+if(isset($_COOKIE['jp_remember_id'])){
+    setcookie("jp_remember_id", "", time() - 3600, "/");
+}
+
+if(isset($_COOKIE['jp_remember_token'])){
+    setcookie("jp_remember_token", "", time() - 3600, "/");
+}
+
+$basePath = "";
+
+if(strpos($_SERVER['SCRIPT_NAME'], "/views/auth/") !== false){
+    $basePath = "../../";
+}
+
+$registeredEmail = "";
+$registeredName = "";
+$registerNotice = "";
+
+if(isset($_COOKIE['jp_registered_email'])){
+    $registeredEmail = $_COOKIE['jp_registered_email'];
+}
+
+if(isset($_COOKIE['jp_registered_name'])){
+    $registeredName = $_COOKIE['jp_registered_name'];
+}
+
+if(isset($_COOKIE['jp_register_success'])){
+    $registerNotice = "Registration successful. Please wait for admin approval.";
+    setcookie("jp_register_success", "", time() - 3600, "/");
+}
+
+if(isset($_SESSION['user_id'])){
+    if($_SESSION['role'] == 'admin'){
+        header("Location: " . $basePath . "views/admin/dashboard.php");
+        exit;
+    }
+
+    if($_SESSION['role'] == 'recruiter'){
+        header("Location: " . $basePath . "views/recruiter/dashboard.php");
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle) ?> — JobPortal</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Job Portal Login</title>
+    <link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/style.css">
 </head>
-<body class="jp">
-<div class="jp-auth">
-    <div class="panel">
-        <h1><i class="fas fa-briefcase" style="margin-right: 8px;"></i>JobPortal</h1>
-        <p class="page-sub">Sign in to your account</p>
+<body class="login-page">
+    <div class="login-card">
+        <div class="brand-mark">JP</div>
+        <h1>Job Portal</h1>
+        <p class="muted">
+            <?php if($registeredName != ""){ ?>
+                Welcome, <?php echo htmlspecialchars($registeredName); ?>
+            <?php }else{ ?>
+                Admin and recruiter access
+            <?php } ?>
+        </p>
 
-        <?php if (!empty($errors)): ?>
-            <div class="pill bad" style="margin-bottom: 20px; padding: 12px; height: auto; display: flex; flex-direction: column; align-items: flex-start;">
-                <?php foreach ($errors as $e): ?>
-                    <div style="display:flex; align-items:center; gap:8px;"><i class="dot"></i> <?= htmlspecialchars($e) ?></div>
-                <?php endforeach; ?>
+        <form id="loginForm" class="form-stack">
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($registeredEmail); ?>" required>
             </div>
-        <?php endif; ?>
 
-        <form method="POST" action="<?= BASE_URL ?>/login" class="col" style="max-width: 360px;">
-            <div class="field">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="input" placeholder="you@example.com" value="<?= htmlspecialchars($email ?? '') ?>" required>
+            <div>
+                <label>Password</label>
+                <input type="password" name="password" id="password" required>
             </div>
-            <div class="field">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="input" placeholder="••••••••" required>
+
+            <div id="loginMessage" class="message <?php echo $registerNotice != "" ? 'message-success' : ''; ?>">
+                <?php echo htmlspecialchars($registerNotice); ?>
             </div>
-            <button type="submit" class="btn primary" style="justify-content: center; height: 38px; margin-top: 8px;">Sign In</button>
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <p style="margin-top: 24px; font-size: 13px; color: var(--muted);">Don't have an account? <a href="<?= BASE_URL ?>/register" style="color: var(--ink); font-weight: 500; text-decoration: none;">Register here</a></p>
+
+        <p class="auth-link">Need a recruiter account? <a href="<?php echo $basePath; ?>register.php">Register</a></p>
     </div>
-    <div class="marketing">
-        <div>
-            <h1 style="font-size: 36px; margin-bottom: 16px;">Welcome Back.</h1>
-            <p style="color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 400px;">
-                Manage your job postings, find top talent, and grow your team.
-            </p>
-        </div>
-        <div style="font-family: var(--mono); color: var(--muted); font-size: 12px;">
-            &copy; <?= date('Y') ?> JobPortal
-        </div>
-    </div>
-</div>
+
+    <script>
+        let basePath = "<?php echo $basePath; ?>";
+
+        document.getElementById("loginForm").addEventListener("submit", function(e){
+            e.preventDefault();
+
+            let formData = new FormData(this);
+            let xhttp = new XMLHttpRequest();
+
+            xhttp.open("POST", basePath + "ajax/auth/login.php", true);
+
+            xhttp.onreadystatechange = function(){
+                if(this.readyState == 4 && this.status == 200){
+                    let message = document.getElementById("loginMessage");
+                    let response;
+
+                    try{
+                        response = JSON.parse(this.responseText);
+                    }catch(error){
+                        message.innerHTML = "Server returned an invalid response";
+                        message.className = "message message-error";
+                        return;
+                    }
+
+                    if(response.status == "success"){
+                        if(response.role == "admin"){
+                            window.location.href = basePath + "views/admin/dashboard.php";
+                        }else{
+                            window.location.href = basePath + "views/recruiter/dashboard.php";
+                        }
+                    }else{
+                        message.innerHTML = response.message;
+                        message.className = "message message-error";
+                    }
+                }
+            }
+
+            xhttp.send(formData);
+        });
+    </script>
 </body>
 </html>

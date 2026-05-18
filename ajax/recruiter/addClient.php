@@ -1,7 +1,7 @@
 <?php
 include "../../controllers/RecruiterController.php";
 
-require_once "../../config/remember.php";
+session_start();
 
 $controller = new RecruiterController();
 $controller->addClient($_SESSION['user_id']);

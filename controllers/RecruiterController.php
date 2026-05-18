@@ -5,10 +5,11 @@ require_once '../../models/Job.php';
 require_once '../../models/Application.php';
 require_once '../../models/Outreach.php';
 require_once '../../models/Category.php';
-require_once '../../config/db.php';
 require_once '../../models/user.php';
+require_once '../../config/db.php';
 
-class RecruiterController {
+class RecruiterController{
+
     private $recruiterModel;
     private $clientModel;
     private $jobModel;
@@ -17,8 +18,7 @@ class RecruiterController {
     private $categoryModel;
     private $userModel;
 
-
-    public function __construct() {
+    public function __construct(){
         $db = new Database();
         $conn = $db->connect();
 
@@ -29,14 +29,13 @@ class RecruiterController {
         $this->outreachModel = new Outreach($conn);
         $this->categoryModel = new Category($conn);
         $this->userModel = new User($conn);
-    
     }
 
     private function isAjaxFile(){
         return isset($_SERVER['PHP_SELF']) && strpos($_SERVER['PHP_SELF'], '/ajax/') !== false;
     }
 
-     private function jobData($recruiter_id){
+    private function jobData($recruiter_id){
         return [
             'recruiter_id' => $recruiter_id,
             'employer_id' => isset($_POST['employer_id']) ? $_POST['employer_id'] : '',
@@ -54,6 +53,7 @@ class RecruiterController {
             'status' => $_POST['status']
         ];
     }
+
     private function validateJob(){
         if(empty($_POST['category_id']) || empty($_POST['title']) || empty($_POST['description']) || empty($_POST['deadline'])){
             echo json_encode([
@@ -101,14 +101,15 @@ class RecruiterController {
             }
         }
 
-        if($_POST['salary_min'] != "" && $_POST['salary_max'] != "" && $_POST['salary_min'] > $_POST['salary_max']){
+        if($_POST['salary_min'] != "" && !is_numeric($_POST['salary_min'])){
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Minimum salary cannot be greater than maximum salary'
+                'message' => 'Minimum salary must be a number'
             ]);
             return false;
         }
-         if($_POST['salary_max'] != "" && !is_numeric($_POST['salary_max'])){
+
+        if($_POST['salary_max'] != "" && !is_numeric($_POST['salary_max'])){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Maximum salary must be a number'
@@ -126,6 +127,7 @@ class RecruiterController {
 
         return true;
     }
+
     public function dashboard($recruiter_id){
         $data = [
             'total_clients' => 0,
@@ -147,7 +149,7 @@ class RecruiterController {
         $activeJobResult = $this->jobModel->countActiveJobsByRecruiter($recruiter_id);
         $activeJobRow = $activeJobResult->fetch_assoc();
         $data['active_jobs'] = $activeJobRow['cnt'];
-        
+
         $applicationResult = $this->applicationModel->countApplicationsByRecruiter($recruiter_id);
         $applicationRow = $applicationResult->fetch_assoc();
         $data['total_applications'] = $applicationRow['cnt'];
@@ -164,9 +166,11 @@ class RecruiterController {
         if($this->isAjaxFile()){
             echo json_encode($data);
         }
+
         return $data;
     }
-     public function profile($recruiter_id){
+
+    public function profile($recruiter_id){
         $result = $this->recruiterModel->getProfile($recruiter_id);
         $profile = $result->fetch_assoc();
 
@@ -176,6 +180,7 @@ class RecruiterController {
 
         return $profile;
     }
+
     public function updateProfile($recruiter_id){
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $agency_name = trim($_POST['agency_name']);
@@ -201,7 +206,7 @@ class RecruiterController {
         }
     }
 
-     public function getClients($recruiter_id){
+    public function getClients($recruiter_id){
         $data = [];
         $result = $this->clientModel->getClients($recruiter_id);
 
@@ -259,7 +264,7 @@ class RecruiterController {
         }
     }
 
-     public function deleteClient($client_id, $recruiter_id){
+    public function deleteClient($client_id, $recruiter_id){
         if($_SERVER['REQUEST_METHOD'] === 'GET'){
             $result = $this->clientModel->deleteClient($client_id, $recruiter_id);
 
@@ -290,6 +295,7 @@ class RecruiterController {
         $result = $this->jobModel->getJobById($job_id);
         return $result->fetch_assoc();
     }
+
     public function getCategories(){
         $data = [];
         $result = $this->categoryModel->getAllCategories();
@@ -300,7 +306,8 @@ class RecruiterController {
 
         return $data;
     }
-     public function addJob($recruiter_id){
+
+    public function addJob($recruiter_id){
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             if(!$this->validateJob()){
                 return;
@@ -367,7 +374,8 @@ class RecruiterController {
             }
         }
     }
-     public function closeJob($job_id, $recruiter_id){
+
+    public function closeJob($job_id, $recruiter_id){
         if($_SERVER['REQUEST_METHOD'] === 'GET'){
             $jobResult = $this->jobModel->getJobById($job_id);
             $job = $jobResult->fetch_assoc();
@@ -390,7 +398,7 @@ class RecruiterController {
         }
     }
 
-     public function searchSeekers(){
+    public function searchSeekers(){
         $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
         $location = isset($_GET['location']) ? $_GET['location'] : '';
         $experience = isset($_GET['experience']) ? $_GET['experience'] : '';
@@ -410,7 +418,7 @@ class RecruiterController {
         return $data;
     }
 
-     public function searchEmployers(){
+    public function searchEmployers(){
         $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
         $data = [];
 
@@ -434,8 +442,153 @@ class RecruiterController {
 
         return $data;
     }
-    
 
-}  
+    public function sendOutreach($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $seeker_id = trim($_POST['seeker_id']);
+            $job_id = trim($_POST['job_id']);
+            $message = trim($_POST['message']);
 
+            if(empty($seeker_id) || empty($job_id) || empty($message)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Seeker, job and message are required'
+                ]);
+                return;
+            }
+
+            $seekerResult = $this->userModel->getSeekerById($seeker_id);
+
+            if($seekerResult->num_rows == 0){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Seeker not found'
+                ]);
+                return;
+            }
+
+            $jobResult = $this->jobModel->getJobById($job_id);
+            $job = $jobResult->fetch_assoc();
+
+            if(!$job || $job['recruiter_id'] != $recruiter_id){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Job not found'
+                ]);
+                return;
+            }
+
+            $result = $this->outreachModel->sendOutreach($recruiter_id, $seeker_id, $job_id, $message);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+    public function getApplications($recruiter_id){
+        $data = [];
+        $result = $this->applicationModel->getApplicationsByRecruiter($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+
+    public function updateApplicationStatus($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $application_id = $_POST['application_id'];
+            $status = $_POST['status'];
+            $allowed = ['submitted', 'reviewed', 'shortlisted', 'interview', 'rejected', 'withdrawn'];
+
+            if(!in_array($status, $allowed)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid status'
+                ]);
+                return;
+            }
+
+            $checkResult = $this->applicationModel->applicationBelongsToRecruiter($application_id, $recruiter_id);
+            $checkRow = $checkResult->fetch_assoc();
+
+            if($checkRow['cnt'] == 0){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Application not found'
+                ]);
+                return;
+            }
+
+            $result = $this->applicationModel->updateStatus($application_id, $status);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+    public function pipeline($recruiter_id){
+        $data = [];
+        $statuses = ['submitted', 'reviewed', 'shortlisted', 'interview', 'rejected', 'withdrawn'];
+
+        foreach($statuses as $status){
+            $data[$status] = [];
+        }
+
+        $result = $this->applicationModel->getApplicationsByRecruiter($recruiter_id);
+
+        while($application = $result->fetch_assoc()){
+            $data[$application['status']][] = $application;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+
+    public function getOutreach($recruiter_id){
+        $data = [];
+        $result = $this->outreachModel->getOutreachByRecruiter($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    public function analytics($recruiter_id){
+        $data = [
+            'summary' => [],
+            'applications_by_status' => []
+        ];
+
+        $summaryResult = $this->recruiterModel->getAnalytics($recruiter_id);
+        $data['summary'] = $summaryResult->fetch_assoc();
+
+        $pipelineResult = $this->applicationModel->getPipelineByRecruiter($recruiter_id);
+        while($row = $pipelineResult->fetch_assoc()){
+            $data['applications_by_status'][] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+}
 ?>
