@@ -410,6 +410,32 @@ class RecruiterController {
         return $data;
     }
 
+     public function searchEmployers(){
+        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+        $data = [];
+
+        if($keyword == ""){
+            if($this->isAjaxFile()){
+                echo json_encode($data);
+            }
+
+            return $data;
+        }
+
+        $result = $this->userModel->getEmployers($keyword);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+    
+
 }  
 
 ?>
