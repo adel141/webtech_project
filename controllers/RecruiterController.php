@@ -526,7 +526,39 @@ class RecruiterController {
             }
         }
     }
-    
+    public function pipeline($recruiter_id){
+        $data = [];
+        $statuses = ['submitted', 'reviewed', 'shortlisted', 'interview', 'rejected', 'withdrawn'];
+
+        foreach($statuses as $status){
+            $data[$status] = [];
+        }
+
+        $result = $this->applicationModel->getApplicationsByRecruiter($recruiter_id);
+
+        while($application = $result->fetch_assoc()){
+            $data[$application['status']][] = $application;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+
+    public function getOutreach($recruiter_id){
+        $data = [];
+        $result = $this->outreachModel->getOutreachByRecruiter($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+
 
 
 }  
