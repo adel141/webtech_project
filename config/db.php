@@ -1,28 +1,25 @@
 <?php
 
-class Database {
+class Database{
 
     private $host = "localhost";
     private $user = "root";
-    private $pass = "";
-    private $dbname = "job_portal";
-
-    public $conn;
+    private $password = "";
+    private $database = "job_portal";
 
     public function connect(){
-
-        $this->conn = new mysqli(
+        $conn = new mysqli(
             $this->host,
             $this->user,
-            $this->pass,
-            $this->dbname
+            $this->password,
+            $this->database
         );
 
-        if($this->conn->connect_error){
-            die("Connection Failed");
+        if($conn->connect_error){
+            die("Connection failed: " . $conn->connect_error);
         }
 
-        return $this->conn;
+        return $conn;
     }
 }
 ?>
