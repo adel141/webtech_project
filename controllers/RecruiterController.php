@@ -81,8 +81,41 @@ class RecruiterController {
         $data['active_jobs'] = $activeJobRow['cnt'];
         return $data;
     }
+     public function profile($recruiter_id){
+        $result = $this->recruiterModel->getProfile($recruiter_id);
+        $profile = $result->fetch_assoc();
 
+        if($this->isAjaxFile()){
+            echo json_encode($profile);
+        }
 
+        return $profile;
+    }
+    public function updateProfile($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $agency_name = trim($_POST['agency_name']);
+            $specialization = trim($_POST['specialization']);
+            $description = trim($_POST['description']);
+            $website = trim($_POST['website']);
 
+            if(empty($agency_name)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Agency name is required'
+                ]);
+                return;
+            }
+
+            $result = $this->recruiterModel->updateProfile($recruiter_id, $agency_name, $specialization, $description, $website);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+}  
 
 ?>
