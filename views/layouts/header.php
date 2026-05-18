@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="JobPortal — A recruitment marketplace connecting job seekers, employers, and recruiters.">
     <title><?= htmlspecialchars($pageTitle ?? 'JobPortal') ?> — JobPortal</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= PUBLIC_URL ?>/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="jp">
@@ -83,7 +83,7 @@
         <div class="jp-sb-spacer"></div>
         <div class="jp-sb-user">
             <?php if ($currentUser['profile_pic']): ?>
-                <img src="<?= BASE_URL ?>/uploads/profile_pics/<?= htmlspecialchars($currentUser['profile_pic']) ?>" class="av" alt="avatar">
+                <img src="<?= PUBLIC_URL ?>/uploads/profile_pics/<?= htmlspecialchars($currentUser['profile_pic']) ?>" class="av" alt="avatar">
             <?php else: ?>
                 <div class="av"><?= strtoupper(substr($currentUser['name'],0,1)) ?></div>
             <?php endif; ?>

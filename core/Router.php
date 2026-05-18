@@ -21,6 +21,9 @@ class Router {
         if (strpos($uri, $base) === 0) {
             $uri = substr($uri, strlen($base));
         }
+        if (strpos($uri, '/index.php') === 0) {
+            $uri = substr($uri, strlen('/index.php'));
+        }
         $uri = '/' . trim($uri, '/');
         if ($uri === '/') $uri = '/';
 

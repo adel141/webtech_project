@@ -6,7 +6,7 @@
     <div>
         <div class="card" style="text-align:center;margin-bottom:20px;">
             <?php if ($user['profile_pic']): ?>
-                <img src="<?= BASE_URL ?>/uploads/profile_pics/<?= htmlspecialchars($user['profile_pic']) ?>" class="avatar-lg" style="margin:0 auto 16px;">
+                <img src="<?= PUBLIC_URL ?>/uploads/profile_pics/<?= htmlspecialchars($user['profile_pic']) ?>" class="avatar-lg" style="margin:0 auto 16px;">
             <?php else: ?>
                 <div class="avatar-lg" style="margin:0 auto 16px;background:var(--accent-glow);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:2rem;font-weight:700;border-radius:50%;"><?= strtoupper(substr($user['name'],0,1)) ?></div>
             <?php endif; ?>
@@ -22,7 +22,7 @@
             <h3 style="margin-bottom:12px;">Resume</h3>
             <?php if (!empty($profile['resume_path'])): ?>
                 <p style="color:var(--success);margin-bottom:12px;"><i class="fas fa-check-circle"></i> Resume uploaded</p>
-                <a href="<?= BASE_URL ?>/uploads/resumes/<?= htmlspecialchars($profile['resume_path']) ?>" target="_blank" class="btn btn-secondary btn-sm btn-block" style="margin-bottom:8px;"><i class="fas fa-download"></i> Download</a>
+                <a href="<?= PUBLIC_URL ?>/uploads/resumes/<?= htmlspecialchars($profile['resume_path']) ?>" target="_blank" class="btn btn-secondary btn-sm btn-block" style="margin-bottom:8px;"><i class="fas fa-download"></i> Download</a>
             <?php else: ?>
                 <p style="color:var(--text-muted);margin-bottom:12px;">No resume uploaded yet</p>
             <?php endif; ?>

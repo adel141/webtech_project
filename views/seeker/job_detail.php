@@ -8,7 +8,7 @@
     <div>
         <div class="card" style="margin-bottom:20px;">
             <div class="job-company" style="margin-bottom:20px;">
-                <div class="company-logo" style="width:56px;height:56px;font-size:1.5rem;"><?= $job['logo_path'] ? '<img src="'.BASE_URL.'/uploads/logos/'.htmlspecialchars($job['logo_path']).'">' : '<i class="fas fa-building"></i>' ?></div>
+                <div class="company-logo" style="width:56px;height:56px;font-size:1.5rem;"><?= $job['logo_path'] ? '<img src="'.PUBLIC_URL.'/uploads/logos/'.htmlspecialchars($job['logo_path']).'">' : '<i class="fas fa-building"></i>' ?></div>
                 <div>
                     <h3 style="margin-bottom:2px;"><?= htmlspecialchars($job['company_name'] ?? 'Company') ?></h3>
                     <span style="color:var(--text-muted);font-size:0.85rem;"><?= htmlspecialchars($job['industry'] ?? '') ?></span>

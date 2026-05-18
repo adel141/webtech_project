@@ -1,8 +1,11 @@
 /**
  * app.js — Global JS helpers, AJAX utilities, Toast notifications
  */
+const appScript = document.currentScript;
+const appPublicUrl = appScript ? appScript.src.replace(/\/js\/app\.js.*$/, '') : '';
+
 const APP = {
-    baseUrl: '/JobPortal/JobPortal_Employer/public',
+    baseUrl: appPublicUrl + '/index.php',
 
     ajax(method, url, data = null) {
         return new Promise((resolve, reject) => {

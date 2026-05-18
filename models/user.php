@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 class User{
 
@@ -24,27 +24,90 @@ class User{
         return $this->conn->query($sql);
     }
 
-    public function registerRecruiter($name, $email, $password, $phone, $agency_name, $specialization){
-        $name = $this->conn->real_escape_string($name);
-        $email = $this->conn->real_escape_string($email);
-        $password = $this->conn->real_escape_string($password);
-        $phone = $this->conn->real_escape_string($phone);
-        $agency_name = $this->conn->real_escape_string($agency_name);
-        $specialization = $this->conn->real_escape_string($specialization);
-
-        $sql = "INSERT INTO users(name, email, password_hash, phone, role, is_active, is_verified)
-                VALUES('$name', '$email', '$password', '$phone', 'recruiter', 1, 0)";
-
-        $result = $this->conn->query($sql);
-
-        if($result){
-            $user_id = $this->conn->insert_id;
-            $profileSql = "INSERT INTO recruiter_profiles(user_id, agency_name, specialization)
-                           VALUES('$user_id', '$agency_name', '$specialization')";
-            return $this->conn->query($profileSql);
+    public function registerUser($name, $email, $password, $phone, $role, $profileData = []){
+        if(!in_array($role, ['seeker', 'employer', 'recruiter'])){
+            return false;
         }
 
-        return false;
+        $is_verified = $role == 'seeker' ? 1 : 0;
+        $is_active = 1;
+
+        $this->conn->begin_transaction();
+
+        try{
+            $stmt = $this->conn->prepare(
+                "INSERT INTO users(name, email, password_hash, phone, role, is_active, is_verified)
+                 VALUES(?, ?, ?, ?, ?, ?, ?)"
+            );
+            if(!$stmt){
+                throw new Exception($this->conn->error);
+            }
+
+            $stmt->bind_param("sssssii", $name, $email, $password, $phone, $role, $is_active, $is_verified);
+            if(!$stmt->execute()){
+                throw new Exception($stmt->error);
+            }
+
+            $user_id = $stmt->insert_id;
+            $stmt->close();
+
+            if($role == 'seeker'){
+                $headline = $profileData['headline'] ?? '';
+                $skills = $profileData['skills'] ?? '';
+
+                $stmt = $this->conn->prepare(
+                    "INSERT INTO seeker_profiles(user_id, headline, skills)
+                     VALUES(?, ?, ?)"
+                );
+                if(!$stmt){
+                    throw new Exception($this->conn->error);
+                }
+                $stmt->bind_param("iss", $user_id, $headline, $skills);
+            }elseif($role == 'employer'){
+                $company_name = $profileData['company_name'] ?? '';
+                $industry = $profileData['industry'] ?? '';
+                $company_size = $profileData['company_size'] ?? '';
+
+                $stmt = $this->conn->prepare(
+                    "INSERT INTO employer_profiles(user_id, company_name, industry, company_size)
+                     VALUES(?, ?, ?, ?)"
+                );
+                if(!$stmt){
+                    throw new Exception($this->conn->error);
+                }
+                $stmt->bind_param("isss", $user_id, $company_name, $industry, $company_size);
+            }else{
+                $agency_name = $profileData['agency_name'] ?? '';
+                $specialization = $profileData['specialization'] ?? '';
+
+                $stmt = $this->conn->prepare(
+                    "INSERT INTO recruiter_profiles(user_id, agency_name, specialization)
+                     VALUES(?, ?, ?)"
+                );
+                if(!$stmt){
+                    throw new Exception($this->conn->error);
+                }
+                $stmt->bind_param("iss", $user_id, $agency_name, $specialization);
+            }
+
+            if(!$stmt->execute()){
+                throw new Exception($stmt->error);
+            }
+            $stmt->close();
+
+            $this->conn->commit();
+            return true;
+        }catch(Exception $e){
+            $this->conn->rollback();
+            return false;
+        }
+    }
+
+    public function registerRecruiter($name, $email, $password, $phone, $agency_name, $specialization){
+        return $this->registerUser($name, $email, $password, $phone, 'recruiter', [
+            'agency_name' => $agency_name,
+            'specialization' => $specialization
+        ]);
     }
 
     public function countByRole(){

@@ -30,7 +30,7 @@
     <?php foreach ($jobs as $job): ?>
     <div class="job-card <?= $job['is_featured'] ? 'featured' : '' ?>">
         <div class="job-company">
-            <div class="company-logo"><?= $job['logo_path'] ? '<img src="'.BASE_URL.'/uploads/logos/'.htmlspecialchars($job['logo_path']).'">' : '<i class="fas fa-building"></i>' ?></div>
+            <div class="company-logo"><?= $job['logo_path'] ? '<img src="'.PUBLIC_URL.'/uploads/logos/'.htmlspecialchars($job['logo_path']).'">' : '<i class="fas fa-building"></i>' ?></div>
             <div><div class="company-name"><?= htmlspecialchars($job['company_name'] ?? 'Company') ?></div></div>
         </div>
         <a href="<?= BASE_URL ?>/seeker/jobs/<?= $job['id'] ?>" style="color:inherit;"><div class="job-title"><?= htmlspecialchars($job['title']) ?></div></a>

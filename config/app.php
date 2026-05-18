@@ -5,7 +5,10 @@
 
 // Base paths
 define('BASE_PATH', dirname(__DIR__));
-define('BASE_URL', '/JobPortal/JobPortal_Employer/public');
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/public/index.php'));
+$publicUrl = rtrim($scriptDir, '/') === '' ? '' : rtrim($scriptDir, '/');
+define('PUBLIC_URL', $publicUrl);
+define('BASE_URL', $publicUrl . '/index.php');
 
 // Upload settings
 define('UPLOAD_PATH', BASE_PATH . '/public/uploads');

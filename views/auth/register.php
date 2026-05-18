@@ -7,14 +7,21 @@ if(strpos($_SERVER['SCRIPT_NAME'], "/views/auth/") !== false){
     $basePath = "../../";
 }
 
-if(isset($_SESSION['user_id'])){
-    if($_SESSION['role'] == 'admin'){
-        header("Location: " . $basePath . "views/admin/dashboard.php");
-        exit;
-    }
+function roleDashboardPath($role){
+    $paths = [
+        'admin' => 'views/admin/dashboard.php',
+        'recruiter' => 'views/recruiter/dashboard.php',
+        'employer' => 'public/index.php/employer/dashboard',
+        'seeker' => 'public/index.php/seeker/dashboard'
+    ];
 
-    if($_SESSION['role'] == 'recruiter'){
-        header("Location: " . $basePath . "views/recruiter/dashboard.php");
+    return $paths[$role] ?? 'login.php';
+}
+
+if(isset($_SESSION['user_id'])){
+    $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? '';
+    if($role != ''){
+        header("Location: " . $basePath . roleDashboardPath($role));
         exit;
     }
 }
@@ -24,16 +31,25 @@ if(isset($_SESSION['user_id'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recruiter Register</title>
+    <title>Job Portal Register</title>
     <link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/style.css">
 </head>
 <body class="login-page">
-    <div class="login-card">
+    <div class="login-card auth-card-wide">
         <div class="brand-mark">JP</div>
         <h1>Create Account</h1>
-        <p class="muted">Register as a recruiter</p>
+        <p class="muted">Register as a job seeker, employer or recruiter</p>
 
         <form id="registerForm" class="form-stack">
+            <div>
+                <label>Account Type</label>
+                <select name="role" id="role">
+                    <option value="seeker">Job Seeker</option>
+                    <option value="employer">Employer</option>
+                    <option value="recruiter">Recruiter</option>
+                </select>
+            </div>
+
             <div>
                 <label>Name</label>
                 <input type="text" name="name" required>
@@ -49,14 +65,52 @@ if(isset($_SESSION['user_id'])){
                 <input type="text" name="phone">
             </div>
 
-            <div>
-                <label>Agency Name</label>
-                <input type="text" name="agency_name" required>
+            <div class="role-fields active" data-role-fields="seeker">
+                <div>
+                    <label>Headline</label>
+                    <input type="text" name="headline" placeholder="Frontend Developer">
+                </div>
+
+                <div>
+                    <label>Skills</label>
+                    <input type="text" name="skills" placeholder="PHP, MySQL, JavaScript">
+                </div>
             </div>
 
-            <div>
-                <label>Specialization</label>
-                <input type="text" name="specialization">
+            <div class="role-fields" data-role-fields="employer">
+                <div>
+                    <label>Company Name</label>
+                    <input type="text" name="company_name" data-required-for="employer">
+                </div>
+
+                <div>
+                    <label>Industry</label>
+                    <input type="text" name="industry" placeholder="Software, Finance, Retail">
+                </div>
+
+                <div>
+                    <label>Company Size</label>
+                    <select name="company_size">
+                        <option value="">Select size</option>
+                        <option value="1-10">1-10</option>
+                        <option value="11-50">11-50</option>
+                        <option value="51-200">51-200</option>
+                        <option value="201-500">201-500</option>
+                        <option value="500+">500+</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="role-fields" data-role-fields="recruiter">
+                <div>
+                    <label>Agency Name</label>
+                    <input type="text" name="agency_name" data-required-for="recruiter">
+                </div>
+
+                <div>
+                    <label>Specialization</label>
+                    <input type="text" name="specialization" placeholder="Technology hiring">
+                </div>
             </div>
 
             <div>
@@ -78,6 +132,24 @@ if(isset($_SESSION['user_id'])){
 
     <script>
         let basePath = "<?php echo $basePath; ?>";
+        let roleSelect = document.getElementById("role");
+
+        function syncRoleFields(){
+            let role = roleSelect.value;
+            let groups = document.querySelectorAll("[data-role-fields]");
+            let requiredInputs = document.querySelectorAll("[data-required-for]");
+
+            groups.forEach(function(group){
+                group.classList.toggle("active", group.getAttribute("data-role-fields") == role);
+            });
+
+            requiredInputs.forEach(function(input){
+                input.required = input.getAttribute("data-required-for") == role;
+            });
+        }
+
+        roleSelect.addEventListener("change", syncRoleFields);
+        syncRoleFields();
 
         document.getElementById("registerForm").addEventListener("submit", function(e){
             e.preventDefault();

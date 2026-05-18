@@ -11,7 +11,7 @@
     <p><strong>Education:</strong> <?=htmlspecialchars($app['education_level']??'-')?></p>
     <p><strong>Expected Salary:</strong> $<?=number_format($app['expected_salary']??0)?></p>
     <p><strong>Location:</strong> <?=htmlspecialchars($app['preferred_location']??'-')?></p>
-    <?php if(!empty($app['resume_path'])):?><a href="<?=BASE_URL?>/uploads/resumes/<?=htmlspecialchars($app['resume_path'])?>" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px;"><i class="fas fa-download"></i> Download Resume</a><?php endif;?>
+    <?php if(!empty($app['resume_path'])):?><a href="<?=PUBLIC_URL?>/uploads/resumes/<?=htmlspecialchars($app['resume_path'])?>" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px;"><i class="fas fa-download"></i> Download Resume</a><?php endif;?>
 </div>
 <div>
     <div class="card" style="margin-bottom:20px;">

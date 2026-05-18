@@ -26,10 +26,12 @@ require_once BASE_PATH . '/models/MessageModel.php';
 require_once BASE_PATH . '/models/ComplaintModel.php';
 require_once BASE_PATH . '/models/RecruiterModel.php';
 require_once BASE_PATH . '/models/AnalyticsModel.php';
+require_once BASE_PATH . '/models/AlertModel.php';
 
 // Load controllers
 require_once BASE_PATH . '/controllers/AuthController.php';
 require_once BASE_PATH . '/controllers/EmployerController.php';
+require_once BASE_PATH . '/controllers/SeekerController.php';
 require_once BASE_PATH . '/controllers/MessageController.php';
 require_once BASE_PATH . '/controllers/ApiController.php';
 

@@ -15,6 +15,17 @@ if(strpos($_SERVER['SCRIPT_NAME'], "/views/auth/") !== false){
     $basePath = "../../";
 }
 
+function roleDashboardPath($role){
+    $paths = [
+        'admin' => 'views/admin/dashboard.php',
+        'recruiter' => 'views/recruiter/dashboard.php',
+        'employer' => 'public/index.php/employer/dashboard',
+        'seeker' => 'public/index.php/seeker/dashboard'
+    ];
+
+    return $paths[$role] ?? 'login.php';
+}
+
 $registeredEmail = "";
 $registeredName = "";
 $registerNotice = "";
@@ -28,18 +39,21 @@ if(isset($_COOKIE['jp_registered_name'])){
 }
 
 if(isset($_COOKIE['jp_register_success'])){
-    $registerNotice = "Registration successful. Please wait for admin approval.";
+    $registeredRole = $_COOKIE['jp_registered_role'] ?? '';
+    $registerNotice = "Registration successful. You can login now.";
+
+    if(in_array($registeredRole, ['employer', 'recruiter'])){
+        $registerNotice = "Registration successful. Please wait for admin approval.";
+    }
+
     setcookie("jp_register_success", "", time() - 3600, "/");
+    setcookie("jp_registered_role", "", time() - 3600, "/");
 }
 
 if(isset($_SESSION['user_id'])){
-    if($_SESSION['role'] == 'admin'){
-        header("Location: " . $basePath . "views/admin/dashboard.php");
-        exit;
-    }
-
-    if($_SESSION['role'] == 'recruiter'){
-        header("Location: " . $basePath . "views/recruiter/dashboard.php");
+    $role = $_SESSION['role'] ?? $_SESSION['user_role'] ?? '';
+    if($role != ''){
+        header("Location: " . $basePath . roleDashboardPath($role));
         exit;
     }
 }
@@ -60,7 +74,7 @@ if(isset($_SESSION['user_id'])){
             <?php if($registeredName != ""){ ?>
                 Welcome, <?php echo htmlspecialchars($registeredName); ?>
             <?php }else{ ?>
-                Admin and recruiter access
+                Access for seekers, employers, recruiters and admins
             <?php } ?>
         </p>
 
@@ -81,7 +95,7 @@ if(isset($_SESSION['user_id'])){
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
 
-        <p class="auth-link">Need a recruiter account? <a href="<?php echo $basePath; ?>register.php">Register</a></p>
+        <p class="auth-link">Need an account? <a href="<?php echo $basePath; ?>register.php">Register</a></p>
     </div>
 
     <script>
@@ -109,11 +123,7 @@ if(isset($_SESSION['user_id'])){
                     }
 
                     if(response.status == "success"){
-                        if(response.role == "admin"){
-                            window.location.href = basePath + "views/admin/dashboard.php";
-                        }else{
-                            window.location.href = basePath + "views/recruiter/dashboard.php";
-                        }
+                        window.location.href = basePath + (response.redirect || "index.php");
                     }else{
                         message.innerHTML = response.message;
                         message.className = "message message-error";

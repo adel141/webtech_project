@@ -2,7 +2,7 @@
 <div class="page-header"><h1>Company Profile</h1><p>Manage your company information</p></div>
 <div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;">
 <div class="card" style="text-align:center;">
-    <?php if (!empty($profile['logo_path'])): ?><img src="<?=BASE_URL?>/uploads/logos/<?=htmlspecialchars($profile['logo_path'])?>" style="width:100px;height:100px;border-radius:var(--radius);object-fit:cover;margin-bottom:16px;">
+    <?php if (!empty($profile['logo_path'])): ?><img src="<?=PUBLIC_URL?>/uploads/logos/<?=htmlspecialchars($profile['logo_path'])?>" style="width:100px;height:100px;border-radius:var(--radius);object-fit:cover;margin-bottom:16px;">
     <?php else: ?><div style="width:100px;height:100px;margin:0 auto 16px;background:var(--accent-glow);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--accent);"><i class="fas fa-building"></i></div><?php endif; ?>
     <form method="POST" action="<?=BASE_URL?>/employer/upload-logo" enctype="multipart/form-data">
         <?=Middleware::csrfField()?>
