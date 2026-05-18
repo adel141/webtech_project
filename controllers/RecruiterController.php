@@ -478,6 +478,55 @@ class RecruiterController {
             }
         }
     }
+     public function getApplications($recruiter_id){
+        $data = [];
+        $result = $this->applicationModel->getApplicationsByRecruiter($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+    public function updateApplicationStatus($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $application_id = $_POST['application_id'];
+            $status = $_POST['status'];
+            $allowed = ['submitted', 'reviewed', 'shortlisted', 'interview', 'rejected', 'withdrawn'];
+
+            if(!in_array($status, $allowed)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid status'
+                ]);
+                return;
+            }
+
+            $checkResult = $this->applicationModel->applicationBelongsToRecruiter($application_id, $recruiter_id);
+            $checkRow = $checkResult->fetch_assoc();
+
+            if($checkRow['cnt'] == 0){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Application not found'
+                ]);
+                return;
+            }
+
+            $result = $this->applicationModel->updateStatus($application_id, $status);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+    
 
 
 }  
