@@ -201,6 +201,79 @@ class RecruiterController {
         }
     }
 
+     public function getClients($recruiter_id){
+        $data = [];
+        $result = $this->clientModel->getClients($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+
+    public function addClient($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $employer_id = trim($_POST['employer_id']);
+            $company_name_override = trim($_POST['company_name_override']);
+
+            if(empty($employer_id) && empty($company_name_override)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Enter an employer id or company name'
+                ]);
+                return;
+            }
+
+            if(!empty($employer_id)){
+                if(!is_numeric($employer_id)){
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Employer ID must be a number'
+                    ]);
+                    return;
+                }
+
+                $employerResult = $this->userModel->getEmployerById($employer_id);
+
+                if($employerResult->num_rows == 0){
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Employer ID not found'
+                    ]);
+                    return;
+                }
+            }
+
+            $result = $this->clientModel->addClient($recruiter_id, $employer_id, $company_name_override);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+     public function deleteClient($client_id, $recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'GET'){
+            $result = $this->clientModel->deleteClient($client_id, $recruiter_id);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+    
+
+
 }  
 
 ?>
