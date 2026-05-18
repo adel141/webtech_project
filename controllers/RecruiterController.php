@@ -2,10 +2,21 @@
 require_once '../../models/Recruiter.php';
 require_once '../../models/Client.php';
 require_once '../../models/Job.php';
+require_once '../../models/Application.php';
+require_once '../../models/Outreach.php';
+require_once '../../models/Category.php';
+require_once '../../config/db.php';
+require_once '../../models/user.php';
+
 class RecruiterController {
     private $recruiterModel;
     private $clientModel;
     private $jobModel;
+    private $applicationModel;
+    private $outreachModel;
+    private $categoryModel;
+    private $userModel;
+
 
     public function __construct() {
         $db = new Database();
@@ -14,6 +25,10 @@ class RecruiterController {
         $this->recruiterModel = new Recruiter($conn);
         $this->clientModel = new Client($conn);
         $this->jobModel = new Job($conn);
+        $this->applicationModel = new Application($conn);
+        $this->outreachModel = new Outreach($conn);
+        $this->categoryModel = new Category($conn);
+        $this->userModel = new User($conn);
     
     }
 
@@ -44,6 +59,59 @@ class RecruiterController {
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Category, title, description and deadline are required'
+            ]);
+            return false;
+        }
+
+        if(!is_numeric($_POST['category_id'])){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid category'
+            ]);
+            return false;
+        }
+
+        $categoryResult = $this->categoryModel->getCategoryById($_POST['category_id']);
+
+        if($categoryResult->num_rows == 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Category not found'
+            ]);
+            return false;
+        }
+
+        if(isset($_POST['employer_id']) && trim($_POST['employer_id']) != ""){
+            if(!is_numeric($_POST['employer_id'])){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Employer ID must be a number'
+                ]);
+                return false;
+            }
+
+            $employerResult = $this->userModel->getEmployerById($_POST['employer_id']);
+
+            if($employerResult->num_rows == 0){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Employer ID not found'
+                ]);
+                return false;
+            }
+        }
+
+        if($_POST['salary_min'] != "" && $_POST['salary_max'] != "" && $_POST['salary_min'] > $_POST['salary_max']){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Minimum salary cannot be greater than maximum salary'
+            ]);
+            return false;
+        }
+         if($_POST['salary_max'] != "" && !is_numeric($_POST['salary_max'])){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Maximum salary must be a number'
             ]);
             return false;
         }
@@ -79,6 +147,23 @@ class RecruiterController {
         $activeJobResult = $this->jobModel->countActiveJobsByRecruiter($recruiter_id);
         $activeJobRow = $activeJobResult->fetch_assoc();
         $data['active_jobs'] = $activeJobRow['cnt'];
+        
+        $applicationResult = $this->applicationModel->countApplicationsByRecruiter($recruiter_id);
+        $applicationRow = $applicationResult->fetch_assoc();
+        $data['total_applications'] = $applicationRow['cnt'];
+
+        $outreachResult = $this->outreachModel->countOutreach($recruiter_id);
+        $outreachRow = $outreachResult->fetch_assoc();
+        $data['total_outreach'] = $outreachRow['cnt'];
+
+        $pipelineResult = $this->applicationModel->getPipelineByRecruiter($recruiter_id);
+        while($row = $pipelineResult->fetch_assoc()){
+            $data['pipeline'][] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
         return $data;
     }
      public function profile($recruiter_id){
