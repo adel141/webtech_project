@@ -557,6 +557,26 @@ class RecruiterController {
 
         return $data;
     }
+    public function analytics($recruiter_id){
+        $data = [
+            'summary' => [],
+            'applications_by_status' => []
+        ];
+
+        $summaryResult = $this->recruiterModel->getAnalytics($recruiter_id);
+        $data['summary'] = $summaryResult->fetch_assoc();
+
+        $pipelineResult = $this->applicationModel->getPipelineByRecruiter($recruiter_id);
+        while($row = $pipelineResult->fetch_assoc()){
+            $data['applications_by_status'][] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
 
 
 
