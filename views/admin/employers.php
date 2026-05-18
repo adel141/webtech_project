@@ -1,6 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<?php
+$stats     = isset($stats) ? $stats : [];
+$byCat     = isset($byCat) ? $byCat : [];
+$activeNav = 'Analytics';
+$topCrumb  = 'ADMIN · ANALYTICS';
+$pageTitle = 'Analytics';
+require   '../layout/header.php';
+?>
     
     <title>Admin | Employers</title>
     <link rel="stylesheet" href="../../public/css/style.css">
