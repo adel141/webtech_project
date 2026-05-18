@@ -31,7 +31,26 @@
     </div>
 </div>
 
-
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+  <div class="card flush">
+    <div class="card-h">
+      <h3>Recent outreach</h3>
+      <a href="" class="btn ghost sm" style="margin-left:auto">View all</a>
+    </div>
+    <table class="tbl">
+      <thead>
+       <tr>
+        <th>Candidate</th>
+        <th>Job</th>
+        <th>Sent</th>
+        <th>Status</th>
+       </tr>
+      </thead>
+      <tbody id="recent-outreach-body">
+ 
+      </tbody>
+    </table>
+  </div>
 
 
 
@@ -40,6 +59,7 @@
 
 <script> 
     loadDashboard();
+    loadRecentOutreach();
 </script>
 
 </html>
