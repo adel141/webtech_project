@@ -83,6 +83,42 @@
         xhttp.send("role=" + $role);
     }
 
+    function loadCategories(){
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let data = JSON.parse(this.responseText);
+                
+                let output='';
+                
+                const tbody = document.getElementById('category-table-data');
+                if(data.length < 1){
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No Employers registered.</td></tr>';
+                    return;
+                }
+                document.getElementById('categories-count').innerHTML= data['total'];
+                tbody.innerHTML = '';
+
+                
+            
+                data['name'].forEach( function(category){
+                output += `<tr>
+                <td style="font-weight:500">${category.name}</td>
+                <td>${category.category_name}</td>
+                <td>${category.job_count}</td>
+                </tr>
+                    `
+                });
+                tbody.innerHTML = output;
+                    
+                
+            }
+        };
+        xhttp.open("GET", "../../ajax/admin/loadCatagories.php", true);
+        xhttp.send();
+    }
+
+        
     // renderStats();
     //     function renderStats(){
     //         let xtthp = new XMLHttpRequest();

@@ -3,6 +3,7 @@ require_once '../../models/user.php';
 require_once '../../config/db.php';
 require_once '../../models/Job.php';
 require_once '../../models/Application.php';
+require_once '../../models/Category.php';
 class AdminController{
 
     private $userModel;
@@ -12,6 +13,8 @@ class AdminController{
         $this->userModel = new User($conn);
         $this->jobModel = new Job($conn);
         $this->applicationModel = new Application($conn);
+        $this->categoryModel = new Category($conn);
+
     }
 
     public function dashboard() {
@@ -71,5 +74,29 @@ class AdminController{
                 echo json_encode(['status' => 'error']);
             }
         }
+         
     }
+    function getAllCategories() {
+            $result = $this->categoryModel->getAllCategories();
+            $jobcountresult = $this->categoryModel->jobCountByCategory();   
+            $categoriescount = $this->categoryModel->countCategory();
+
+
+            $categories = [];
+            while($row = $result->fetch_assoc()){
+                $categories[] = $row;
+            }
+            while($row = $jobcountresult->fetch_assoc()){
+                $category_name[] = $row;
+            }
+            $totalCategory = $categoriescount->fetch_assoc()['cnt'];
+
+            $sumCategories['categories'] = $categories; 
+            $sumCategories['name'] = $category_name;
+            $sumCategories['total'] = $totalCategory;
+
+            
+
+            echo json_encode($sumCategories);
+        }
 }
