@@ -367,11 +367,48 @@ class RecruiterController {
             }
         }
     }
+     public function closeJob($job_id, $recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'GET'){
+            $jobResult = $this->jobModel->getJobById($job_id);
+            $job = $jobResult->fetch_assoc();
 
+            if(!$job || $job['recruiter_id'] != $recruiter_id){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Job not found'
+                ]);
+                return;
+            }
 
+            $result = $this->jobModel->closeJob($job_id);
 
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
 
+     public function searchSeekers(){
+        $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
+        $location = isset($_GET['location']) ? $_GET['location'] : '';
+        $experience = isset($_GET['experience']) ? $_GET['experience'] : '';
+        $salary = isset($_GET['salary']) ? $_GET['salary'] : '';
 
+        $data = [];
+        $result = $this->recruiterModel->searchSeekers($keyword, $location, $experience, $salary);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
 
 }  
 
