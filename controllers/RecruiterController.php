@@ -434,7 +434,51 @@ class RecruiterController {
 
         return $data;
     }
-    
+     public function sendOutreach($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $seeker_id = trim($_POST['seeker_id']);
+            $job_id = trim($_POST['job_id']);
+            $message = trim($_POST['message']);
+
+            if(empty($seeker_id) || empty($job_id) || empty($message)){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Seeker, job and message are required'
+                ]);
+                return;
+            }
+
+            $seekerResult = $this->userModel->getSeekerById($seeker_id);
+
+            if($seekerResult->num_rows == 0){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Seeker not found'
+                ]);
+                return;
+            }
+
+            $jobResult = $this->jobModel->getJobById($job_id);
+            $job = $jobResult->fetch_assoc();
+
+            if(!$job || $job['recruiter_id'] != $recruiter_id){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Job not found'
+                ]);
+                return;
+            }
+
+            $result = $this->outreachModel->sendOutreach($recruiter_id, $seeker_id, $job_id, $message);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
 
 }  
 
