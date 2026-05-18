@@ -271,7 +271,106 @@ class RecruiterController {
         }
     }
 
-    
+    public function getJobs($recruiter_id){
+        $data = [];
+        $result = $this->jobModel->getJobsByRecruiter($recruiter_id);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if($this->isAjaxFile()){
+            echo json_encode($data);
+        }
+
+        return $data;
+    }
+
+    public function getJobById($job_id){
+        $result = $this->jobModel->getJobById($job_id);
+        return $result->fetch_assoc();
+    }
+    public function getCategories(){
+        $data = [];
+        $result = $this->categoryModel->getAllCategories();
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+     public function addJob($recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if(!$this->validateJob()){
+                return;
+            }
+
+            $data = $this->jobData($recruiter_id);
+            $result = $this->jobModel->addJob($data);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+    public function updateJob($job_id, $recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $jobResult = $this->jobModel->getJobById($job_id);
+            $job = $jobResult->fetch_assoc();
+
+            if(!$job || $job['recruiter_id'] != $recruiter_id){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Job not found'
+                ]);
+                return;
+            }
+
+            if(!$this->validateJob()){
+                return;
+            }
+
+            $data = $this->jobData($recruiter_id);
+            $result = $this->jobModel->updateJob($job_id, $data);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+    public function deleteJob($job_id, $recruiter_id){
+        if($_SERVER['REQUEST_METHOD'] === 'GET'){
+            $jobResult = $this->jobModel->getJobById($job_id);
+            $job = $jobResult->fetch_assoc();
+
+            if(!$job || $job['recruiter_id'] != $recruiter_id){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Job not found'
+                ]);
+                return;
+            }
+
+            $result = $this->jobModel->deleteJob($job_id);
+
+            if($result){
+                echo json_encode(['status' => 'success']);
+            }else{
+                echo json_encode(['status' => 'error']);
+            }
+        }
+    }
+
+
+
+
 
 
 }  
